@@ -1,0 +1,145 @@
+// DOMODI — app.js
+
+// ── Navegación por secciones ──
+const navLinks = document.querySelectorAll(".nav-link[data-section]");
+const heroSection = document.getElementById("hero-strip");
+const carouselSection = document.querySelector(".carousel-section");
+const businessSection = document.getElementById("section-business");
+const aboutSection = document.getElementById("section-nosotros");
+const legalSection = document.getElementById("section-legal");
+const contactSection = document.getElementById("section-contacto");
+
+function hideSections(sections) {
+  sections.forEach((section) => {
+    if (section) {
+      section.classList.remove("section-visible");
+      section.hidden = true;
+    }
+  });
+}
+
+function showInicio() {
+  // Inicio muestra Business y Legal. Hero y carrusel solo visibles en Inicio.
+  heroSection.hidden = false;
+  carouselSection.hidden = false;
+  businessSection.hidden = false;
+  businessSection.classList.add("section-visible");
+  legalSection.hidden = false;
+  hideSections([aboutSection, contactSection]);
+}
+
+// Inicializar vista al cargar
+document.addEventListener("DOMContentLoaded", () => {
+  // Default to Inicio
+  showInicio();
+});
+
+navLinks.forEach((link) => {
+  link.addEventListener("click", function (e) {
+    e.preventDefault();
+
+    // Actualizar link activo
+    navLinks.forEach((l) => l.classList.remove("active"));
+    this.classList.add("active");
+
+    const section = this.dataset.section;
+
+    if (section === "inicio") {
+      showInicio();
+    } else if (section === "business") {
+      heroSection.hidden = true;
+      carouselSection.hidden = true;
+      hideSections([aboutSection, legalSection, contactSection]);
+      businessSection.hidden = false;
+      businessSection.classList.add("section-visible");
+    } else if (section === "nosotros") {
+      heroSection.hidden = true;
+      carouselSection.hidden = true;
+      hideSections([businessSection, legalSection, contactSection]);
+      aboutSection.hidden = false;
+      aboutSection.classList.add("section-visible");
+    } else if (section === "legal") {
+      heroSection.hidden = true;
+      carouselSection.hidden = true;
+      hideSections([businessSection, aboutSection, contactSection]);
+      legalSection.hidden = false;
+      legalSection.classList.add("section-visible");
+    } else if (section === "contacto") {
+      heroSection.hidden = true;
+      carouselSection.hidden = true;
+      hideSections([businessSection, aboutSection, legalSection]);
+      contactSection.hidden = false;
+      contactSection.classList.add("section-visible");
+    }
+
+    // Cerrar menú móvil después de seleccionar (Bootstrap collapse y offcanvas)
+    const bsCollapseEl = document.getElementById("navbarSupportedContent");
+    if (bsCollapseEl) {
+      const bsCollapse =
+        bootstrap.Collapse.getInstance(bsCollapseEl) ||
+        new bootstrap.Collapse(bsCollapseEl, { toggle: false });
+      bsCollapse.hide();
+    }
+
+    const offcanvasEl = document.getElementById("offcanvasNavbar");
+    if (offcanvasEl) {
+      const bsOffcanvas =
+        bootstrap.Offcanvas.getInstance(offcanvasEl) ||
+        new bootstrap.Offcanvas(offcanvasEl, { toggle: false });
+      bsOffcanvas.hide();
+    }
+  });
+});
+
+// ── Offcanvas push effect ──
+const offcanvasEl = document.getElementById("offcanvasNavbar");
+if (offcanvasEl) {
+  offcanvasEl.addEventListener("show.bs.offcanvas", () => {
+    document.body.classList.add("offcanvas-pushed");
+  });
+  offcanvasEl.addEventListener("hidden.bs.offcanvas", () => {
+    document.body.classList.remove("offcanvas-pushed");
+  });
+}
+
+// ── Botones "Ver información" ──
+const detailPropertyIds = new Set([
+  "hacienda-tenorio",
+  "finca-playa-buena-vista",
+  "finca-tempate",
+  "proyecto-escazu",
+]);
+
+const detailLegalIds = new Set([
+  "codigo-civil",
+  "codigo-penal",
+  "codigo-trabajo",
+  "codigo-fiscal",
+  "codigo-familia",
+  "codigo-comercial",
+  "codigo-administrativo",
+]);
+
+document.querySelectorAll(".botoninfo").forEach((btn) => {
+  btn.addEventListener("click", function () {
+    const card = this.closest(".property-card");
+    const propertyId = card.dataset.propertyId;
+    const contactLink = document.querySelector(
+      '.nav-link[data-section="contacto"]',
+    );
+
+    if (propertyId && detailPropertyIds.has(propertyId)) {
+      window.location.href = `property-detail.html?id=${propertyId}`;
+      return;
+    }
+
+    if (propertyId && detailLegalIds.has(propertyId)) {
+      window.location.href = `legal-detail.html?id=${propertyId}`;
+      return;
+    }
+
+    if (contactLink) {
+      contactLink.click();
+    }
+  });
+});
